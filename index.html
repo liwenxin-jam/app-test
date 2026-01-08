@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="renderer" content="webkit" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <title>大瓦特</title>
+  <style>
+    body,
+    html {
+      padding: 0;
+      margin: 0;
+    }
+
+    body {
+      width: 100vw;
+      height: 100vh;
+    }
+
+    .flex-c {
+      display: flex;
+      justify-content: center;
+    }
+
+    .flex-center {
+      display: flex;
+      align-items: center;
+    }
+
+    .flex-column {
+      flex-direction: column;
+    }
+
+    .flex-both {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .ct {
+      text-align: center;
+    }
+
+    .relative {
+      position: relative;
+    }
+
+    .bold {
+      font-weight: bold;
+    }
+
+    .container {
+      height: calc(100% - 140px);
+      padding: 110px 0 30px;
+    }
+
+    .header-w {
+      padding: 0 25px;
+    }
+
+    .avatar {
+      display: inline-block;
+      width: 80px;
+      height: 80px;
+      background-color: #8695b9;
+      border-radius: 50%;
+    }
+
+    .title {
+      color: #000000;
+      font-size: 24px;
+      font-weight: bold;
+      padding: 0 30px;
+      margin-top: 20px;
+    }
+
+    .desc {
+      color: #666666;
+      margin-top: 12px;
+    }
+
+    .btn {
+      background-color: #0064ff;
+      color: white;
+      height: 48px;
+      line-height: 48px;
+      border-radius: 10px;
+      margin: 0 38px;
+    }
+
+    .mask {
+      display: none;
+      background: rgba(0, 0, 0, 0.4);
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+    }
+
+    .mask .tips {
+      color: black;
+      background-color: white;
+      position: absolute;
+      font-size: 12px;
+      right: 8px;
+      top: 10px;
+      padding: 0 14px;
+      height: 36px;
+      line-height: 36px;
+      border-radius: 8px;
+    }
+
+    .mask .tips::after {
+      content: "";
+      position: absolute;
+      right: 8px;
+      top: -3px;
+      transform: translateY(-50%);
+      width: 0;
+      height: 0;
+      border-right: 8px solid transparent;
+      border-left: 8px solid transparent;
+      border-bottom: 8px solid white;
+    }
+
+    .download-mask {
+      display: none;
+      background: rgba(255, 255, 255, 0.4);
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+    }
+
+    .download-mask .bg {
+      height: calc(100% - 310px);
+      margin-top: 280px;
+      padding-bottom: 30px;
+      background-color: white;
+    }
+
+    .download-mask .content {
+      padding: 0 25px;
+    }
+
+    .download-mask .content .title {
+      padding: 0;
+      font-size: 20px;
+      margin-bottom: 15px;
+    }
+
+    .download-mask .content .tip {
+      font-size: 18px;
+      color: #000000;
+      margin-bottom: 25px;
+    }
+
+    .download-mask .content .operate {
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .message {
+      position: fixed;
+      top: 48vw;
+      left: 50%;
+      display: flex;
+      flex-direction: column;
+      -webkit-box-align: center;
+      -webkit-align-items: center;
+      align-items: center;
+      -webkit-box-pack: center;
+      -webkit-justify-content: center;
+      justify-content: center;
+      box-sizing: content-box;
+      width: fit-content;
+      opacity: 0;
+      z-index: -1000;
+      max-width: 120px;
+      min-height: 32px;
+      padding: 10px 16px;
+      color: #fff;
+      font-size: 14px;
+      line-height: 20px;
+      white-space: pre-wrap;
+      text-align: center;
+      word-break: break-all;
+      background-color: rgba(0, 0, 0, 0.7);
+      border-radius: 8px;
+      box-sizing: border-box;
+      -webkit-transform: translate3d(-50%, 0, 0);
+      transform: translate3d(-50%, 0, 0);
+      transition: opacity linear 0.5s, z-index linear 0.5s;
+    }
+
+    .loading {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 10;
+      height: 100vh;
+      width: 100vw;
+      background: white;
+      color: black;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+  </style>
+  <script>
+    // 立即执行初始化
+    (function () {
+      // 监测浏览器环境
+      function detectBrowserEnv() {
+        const ua = navigator.userAgent.toLowerCase();
+
+        // 优先检测移动关键词
+        const mobileKeywords = [
+          "mobile",
+          "android",
+          "iphone",
+          "ipad",
+          "ipod",
+          "windows phone",
+          "harmonyos",
+        ];
+
+        // 检测桌面系统标识
+        const pcMarkers = ["windows nt", "macintosh", "linux x86"];
+
+        return {
+          isMobile: mobileKeywords.some((kw) => ua.includes(kw)),
+          isPC:
+            pcMarkers.some((marker) => ua.includes(marker)) &&
+            !mobileKeywords.some((kw) => ua.includes(kw)),
+          isWeChat: /micromessenger/i.test(ua),
+          isAndroid: /android/i.test(ua),
+          isIOS:
+            /iphone|ipad|ipod/i.test(ua) ||
+            (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1),
+          isHarmony: /harmonyos|openharmony/i.test(ua),
+          isDefaultBrowser:
+            /mobile|android|iphone|ipad|ipod/i.test(ua) &&
+            !/micromessenger/i.test(ua) &&
+            !/appname|webview|myapp/i.test(ua),
+        };
+      }
+      window.dwtBrowserData = detectBrowserEnv();
+
+      const search = window.location.search.substring(1);
+      const params = {}
+      if (search) {
+        search.split('&').forEach(item => {
+          const [key, value] = item.split('=');
+          if (key) {
+            params[decodeURIComponent(key)] = value ? decodeURIComponent(value) : '';
+          }
+        })
+      }
+      console.log('params', params);
+
+      async function fetchData() {
+        try {
+          const baseUrl = '';
+          // 构建带查询参数的URL
+          const url = new URL(baseUrl)
+          Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
+          console.log('url', url);
+          const response = await fetch(url.toString(), {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+          });
+          const data = await response.json();
+          console.log('fetchData', data);
+          window.dwtDetchData = data;
+        } catch (error) {
+          console.error('Error:', error);
+          const loading = document.getElementById('loading');
+          loading.style.display = 'none';
+        }
+      }
+      // fetchData();
+    })()
+  </script>
+</head>
+
+<body>
+  <div class="container flex-both flex-column relative">
+    <div class="flex-center flex-column ct header-w">
+      <img id="model-avatar" class="avatar"></img>
+      <div id="model-title" class="title">Hi，我是大瓦特</div>
+      <div id="model-desc" class="desc">
+        擅长回答电力行业基础知识，帮助您轻松搞懂电力行业的入门知识
+      </div>
+    </div>
+    <div id="chat-btn" class="btn ct">去和大瓦特全能问答王对话</div>
+    <div id="mask" class="mask relative">
+      <div class="tips">点击更多，使用默认浏览器打开</div>
+    </div>
+    <div id="download" class="download-mask">
+      <div class="bg flex-both flex-column">
+        <div class="content">
+          <div class="title">尊敬的用户</div>
+          <div class="tip">
+            由于您没有下载大瓦特APP因此暂时无法与智能体进行对话。
+          </div>
+          <div class="operate bold">操作步骤：</div>
+          <div class="operate">1.在浏览器中打开移动应用门户下载地址；</div>
+          <div class="operate">2.下载并安装移动应用门户 APP；</div>
+          <div class="operate">3.打开APP，点击首页中间的应用商店图标；</div>
+          <div class="operate">
+            4.搜索并下载安装大瓦特 APP，即可正常使用对话功能。
+          </div>
+        </div>
+        <div id="download-btn" class="btn ct">
+          到移动应用门户下载大瓦特APP
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- 消息框 -->
+  <div id="message" class="message"></div>
+  <div id="loading" class="loading">加载中...</div>
+</body>
+<script>
+  function showMessage(msg, time = 3000) {
+    document.getElementById("message").innerHTML = msg;
+    document.getElementById("message").style.zIndex = 1000;
+    document.getElementById("message").style.opacity = 1;
+    setTimeout(() => {
+      document.getElementById("message").style.opacity = 0;
+      document.getElementById("message").style.zIndex = -1000;
+    }, time);
+  }
+
+  function openDefaultPage() {
+    const { isAndroid, isIOS, isHarmony } = window.dwtBrowserData;
+
+    const appScheme = isHarmony
+      ? "nwrgznWatt://app"
+      : isIOS ? 'nwrgznWatt://agent' : "nwyduumbs://com.uusafe.portal.client.enterprise";
+
+    window.location.href = appScheme;
+
+    // 跳转应用失败，延迟3秒后显示下载页面提示，告诉用户下载APP
+    setTimeout(() => {
+      const downloadPage = document.getElementById("download");
+      const downloadDiv = window.getComputedStyle(downloadPage);
+      console.log("downloadDiv.display", downloadDiv.display);
+      if (downloadDiv.display === "none") {
+        downloadPage.style.display = "block";
+      } else {
+        const fallbackUrl = "";
+        console.log("fallbackUrl", fallbackUrl);
+        //   window.location.href = fallbackUrl;
+      }
+    }, 3000);
+  }
+
+  function onBindClick() {
+    const btn = document.getElementById("chat-btn");
+    btn.addEventListener("click", () => {
+      const { isDefaultBrowser } = window.dwtBrowserData;
+      console.log("isDefaultBrowser", isDefaultBrowser);
+      if (isDefaultBrowser) {
+        openDefaultPage();
+      } else {
+        const mask = document.getElementById("mask");
+        mask.style.display = "block";
+      }
+    });
+
+    const downloadBtn = document.getElementById("download-btn");
+    downloadBtn.addEventListener("click", () => {
+      openDefaultPage();
+    });
+  }
+
+  function init() {
+    const { isPC, isDefaultBrowser } = window.dwtBrowserData;
+    console.log("isPC", isPC);
+    console.log("isDefaultBrowser", isDefaultBrowser);
+    if (isDefaultBrowser) {
+      openDefaultPage();
+    }
+  }
+
+  function renderContent(data) {
+    const avatar = document.getElementById("model-avatar");
+    // data:image/jpeg;base64,
+    avatar.src = data.avatar;
+    const title = document.getElementById("model-title");
+    title.innerText = data.title;
+    const desc = document.getElementById("model-desc");
+    desc.innerText = data.desc;
+    const loading = document.getElementById('loading');
+    loading.style.display = 'none';
+  }
+
+  // 页面加载时自动执行
+  document.addEventListener("DOMContentLoaded", function () {
+    if (window.dwtDetchData) {
+      renderContent(window.dwtDetchData);
+    } else {
+      const intervalId = setInterval(() => {
+        if (window.dwtDetchData) {
+          clearInterval(intervalId);
+          renderContent(window.dwtDetchData);
+        }
+      }, 1000);
+    }
+    // TODO
+    init();
+    onBindClick();
+  });
+</script>
+
+
+</html>
